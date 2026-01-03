@@ -23,7 +23,11 @@ ScreenGui.Name = "HANZ"
 
 -- CoreGui fix for executors
 local parentGui = game:GetService("CoreGui")
-if syn then parentGui = gethui() end
+if syn and syn.protect_gui then
+    syn.protect_gui(ScreenGui)
+elseif gethui then
+    parentGui = gethui()
+end
 ScreenGui.Parent = parentGui
 ScreenGui.ResetOnSpawn = false
 
@@ -93,6 +97,7 @@ local function addTab(name, page)
     b.TextSize = 14
     b.TextColor3 = Color3.new(1,1,1)
     b.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    b.AutoButtonColor = false
     b.MouseEnter:Connect(function()
         TS:Create(b, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0,170,255)}):Play()
         b.TextColor3 = Color3.new(0,0,0)
@@ -129,6 +134,7 @@ local function addButton(parent, text, cb)
     b.TextSize = 14
     b.BackgroundColor3 = Color3.fromRGB(28,28,28)
     b.TextColor3 = Color3.fromRGB(0,170,255)
+    b.AutoButtonColor = false
     b.MouseEnter:Connect(function()
         TS:Create(b, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0,170,255)}):Play()
         b.TextColor3 = Color3.new(0,0,0)
@@ -153,16 +159,14 @@ switchTab(MainTab)
 -- MAIN
 addToggle(MainTab, "Anti AFK", function(v)
     Toggles["Anti AFK"] = v
-    if v then
-        task.spawn(function()
-            while Toggles["Anti AFK"] do
-                VU:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                task.wait(1)
-                VU:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-                task.wait(50)
-            end
-        end)
-    end
+    task.spawn(function()
+        while Toggles["Anti AFK"] do
+            VU:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(1)
+            VU:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            task.wait(50)
+        end
+    end)
 end)
 
 addButton(MainTab, "Close GUI", function()
