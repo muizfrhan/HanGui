@@ -1,3 +1,6 @@
+print("HANZ COOL LOADED")
+
+
 if _G.HANZ_COOL_LOADED then return end
 _G.HANZ_COOL_LOADED = true
 
