@@ -1,5 +1,5 @@
---// FISH IT | HANSZ (ALL-IN-ONE FIX) 
---// Executor-safe, 1 file, full features + modern GUI + Fast Action + Anti Fail
+--// FISH IT | HANSZ SUPER GUI V1.0
+--// Executor-safe, 1 file, full features + modern 3D GUI + Fast Action + Anti Fail + Auto Collect + Player Mods
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -9,6 +9,7 @@ local VU = game:GetService("VirtualUser")
 local RS = game:GetService("RunService")
 local TS = game:GetService("TweenService")
 local TeleportService = game:GetService("TeleportService")
+local Workspace = game:GetService("Workspace")
 
 -- SAFE FPS
 local function FPSBoost()
@@ -19,7 +20,7 @@ end
 
 -- ================= UI =================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "HANZ"
+ScreenGui.Name = "HANZ_GUI"
 
 -- CoreGui fix for executors
 local parentGui = game:GetService("CoreGui")
@@ -31,18 +32,23 @@ end
 ScreenGui.Parent = parentGui
 ScreenGui.ResetOnSpawn = false
 
+-- MAIN FRAME
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.fromScale(0.38, 0.5)
 Main.Position = UDim2.fromScale(0.31, 0.25)
 Main.BackgroundColor3 = Color3.fromRGB(18,18,18)
+Main.BackgroundTransparency = 0.5 -- semi transparan
 Main.Active, Main.Draggable = true, true
 Main.BorderSizePixel = 0
 Main.ClipsDescendants = true
 
+-- Neon stroke
 local Stroke = Instance.new("UIStroke", Main)
 Stroke.Color = Color3.fromRGB(0,170,255)
 Stroke.Thickness = 2
+Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+-- TITLE
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,45)
 Title.Text = "FISH IT | By HANSZ"
@@ -51,6 +57,7 @@ Title.TextSize = 20
 Title.TextColor3 = Color3.fromRGB(0,170,255)
 Title.BackgroundTransparency = 1
 
+-- TAB BAR
 local TabBar = Instance.new("Frame", Main)
 TabBar.Position = UDim2.new(0,0,0,50)
 TabBar.Size = UDim2.new(1,0,0,45)
@@ -60,15 +67,17 @@ TabList.FillDirection = Enum.FillDirection.Horizontal
 TabList.Padding = UDim.new(0,6)
 TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
+-- PAGES
 local Pages = Instance.new("Frame", Main)
 Pages.Position = UDim2.new(0,0,0,100)
 Pages.Size = UDim2.new(1,0,1,-105)
 Pages.BackgroundTransparency = 1
 
+-- TABLES
 local Toggles = {}
 local CurrentTab
 
--- PAGE FUNCTIONS
+-- FUNCTIONS FOR PAGES
 local function newPage()
     local f = Instance.new("Frame", Pages)
     f.Size = UDim2.fromScale(1,1)
@@ -82,9 +91,7 @@ local function newPage()
 end
 
 local function switchTab(p)
-    if CurrentTab then
-        CurrentTab.Visible = false
-    end
+    if CurrentTab then CurrentTab.Visible = false end
     CurrentTab = p
     p.Visible = true
 end
@@ -98,6 +105,7 @@ local function addTab(name, page)
     b.TextColor3 = Color3.new(1,1,1)
     b.BackgroundColor3 = Color3.fromRGB(30,30,30)
     b.AutoButtonColor = false
+    -- hover anim
     b.MouseEnter:Connect(function()
         TS:Create(b, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0,170,255)}):Play()
         b.TextColor3 = Color3.new(0,0,0)
@@ -146,34 +154,47 @@ local function addButton(parent, text, cb)
     b.MouseButton1Click:Connect(cb)
 end
 
--- PAGES
+-- CREATE TABS
 local MainTab = newPage()
 local FarmTab = newPage()
+local PlayerTab = newPage()
 local MiscTab = newPage()
 addTab("Main", MainTab)
 addTab("Farm", FarmTab)
+addTab("Player", PlayerTab)
 addTab("Misc", MiscTab)
 switchTab(MainTab)
 
 -- ================= FEATURES =================
--- MAIN
+-- MAIN TAB
 addToggle(MainTab, "Anti AFK", function(v)
     Toggles["Anti AFK"] = v
     task.spawn(function()
         while Toggles["Anti AFK"] do
-            VU:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            VU:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
             task.wait(1)
-            VU:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            VU:Button2Up(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
             task.wait(50)
         end
     end)
 end)
 
+-- FISH TRACKER
+local FishCaught = 0
+local FishLabel = Instance.new("TextLabel", MainTab)
+FishLabel.Size = UDim2.new(1,0,0,30)
+FishLabel.Position = UDim2.new(0,0,0,0)
+FishLabel.BackgroundTransparency = 1
+FishLabel.TextColor3 = Color3.fromRGB(0,255,170)
+FishLabel.TextSize = 14
+FishLabel.Font = Enum.Font.GothamBold
+FishLabel.Text = "Fish Caught: 0"
+
 addButton(MainTab, "Close GUI", function()
     ScreenGui:Destroy()
 end)
 
--- FARM
+-- FARM TAB
 local function getRod()
     local char = LP.Character
     if not char then return nil end
@@ -189,7 +210,7 @@ local function castRod(rod)
 end
 
 local function findReelPrompt()
-    for _,d in pairs(workspace:GetDescendants()) do
+    for _,d in pairs(Workspace:GetDescendants()) do
         if d:IsA("ProximityPrompt") then
             local n = d.Name:lower()
             if n:find("reel") or n:find("catch") or n:find("pull") then
@@ -198,17 +219,6 @@ local function findReelPrompt()
         end
     end
 end
-
--- Fish Tracker
-local FishCaught = 0
-local FishLabel = Instance.new("TextLabel", MainTab)
-FishLabel.Size = UDim2.new(1,0,0,30)
-FishLabel.Position = UDim2.new(0,0,0,0)
-FishLabel.BackgroundTransparency = 1
-FishLabel.TextColor3 = Color3.fromRGB(0,255,170)
-FishLabel.TextSize = 14
-FishLabel.Font = Enum.Font.GothamBold
-FishLabel.Text = "Fish Caught: 0"
 
 -- AUTO FISH
 addToggle(FarmTab, "Auto Fish", function(v)
@@ -233,12 +243,10 @@ addToggle(FarmTab, "Auto Fish", function(v)
     end)
 end)
 
--- FAST ACTION
 addToggle(FarmTab, "Fast Action", function(v)
     Toggles["Fast Action"] = v
 end)
 
--- ANTI FAIL
 addToggle(FarmTab, "Anti Fail", function(v)
     Toggles["Anti Fail"] = v
     task.spawn(function()
@@ -254,7 +262,44 @@ addToggle(FarmTab, "Anti Fail", function(v)
     end)
 end)
 
--- MISC
+-- PLAYER TAB
+addToggle(PlayerTab, "Speed Hack", function(v)
+    Toggles["Speed Hack"] = v
+    task.spawn(function()
+        while Toggles["Speed Hack"] do
+            if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+                LP.Character.Humanoid.WalkSpeed = 50
+            end
+            task.wait(0.2)
+        end
+        if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+            LP.Character.Humanoid.WalkSpeed = 16
+        end
+    end)
+end)
+
+addToggle(PlayerTab, "Jump Hack", function(v)
+    Toggles["Jump Hack"] = v
+    task.spawn(function()
+        while Toggles["Jump Hack"] do
+            if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+                LP.Character.Humanoid.JumpPower = 100
+            end
+            task.wait(0.2)
+        end
+        if LP.Character and LP.Character:FindFirstChild("Humanoid") then
+            LP.Character.Humanoid.JumpPower = 50
+        end
+    end)
+end)
+
+addButton(PlayerTab, "Teleport Spawn", function()
+    if LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then
+        LP.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(0,5,0))
+    end
+end)
+
+-- MISC TAB
 addButton(MiscTab, "FPS Boost", function() FPSBoost() end)
 addButton(MiscTab, "Server Rejoin", function()
     TeleportService:Teleport(game.PlaceId)
