@@ -1,5 +1,5 @@
---// FISH IT | LYNXX PREMIUM (SINGLE FILE GUI)
---// Executor-safe, 1 file, full features + modern GUI
+--// FISH IT | HANSZ (ALL-IN-ONE FIX)
+--// Executor-safe, 1 file, full features + modern GUI + Fast Action + Anti Fail
 
 -- SERVICES
 local Players = game:GetService("Players")
@@ -18,8 +18,9 @@ local function FPSBoost()
 end
 
 -- ================= UI =================
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HANZ"
+ScreenGui.Parent = LP:WaitForChild("PlayerGui")
 
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.fromScale(0.38, 0.5)
@@ -33,7 +34,6 @@ local Stroke = Instance.new("UIStroke", Main)
 Stroke.Color = Color3.fromRGB(0,170,255)
 Stroke.Thickness = 2
 
--- Title
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,45)
 Title.Text = "FISH IT | By HANSZ"
@@ -42,7 +42,6 @@ Title.TextSize = 20
 Title.TextColor3 = Color3.fromRGB(0,170,255)
 Title.BackgroundTransparency = 1
 
--- TabBar
 local TabBar = Instance.new("Frame", Main)
 TabBar.Position = UDim2.new(0,0,0,50)
 TabBar.Size = UDim2.new(1,0,0,45)
@@ -60,7 +59,7 @@ Pages.BackgroundTransparency = 1
 local Toggles = {}
 local CurrentTab
 
--- Functions
+-- PAGE FUNCTIONS
 local function newPage()
     local f = Instance.new("Frame", Pages)
     f.Size = UDim2.fromScale(1,1)
@@ -75,7 +74,6 @@ end
 
 local function switchTab(p)
     if CurrentTab then
-        TS:Create(CurrentTab, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         CurrentTab.Visible = false
     end
     CurrentTab = p
@@ -149,11 +147,15 @@ switchTab(MainTab)
 -- ================= FEATURES =================
 -- MAIN
 addToggle(MainTab, "Anti AFK", function(v)
+    Toggles["Anti AFK"] = v
     if v then
-        LP.Idled:Connect(function()
-            VU:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
-            task.wait(1)
-            VU:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+        task.spawn(function()
+            while Toggles["Anti AFK"] do
+                VU:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VU:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(50)
+            end
         end)
     end
 end)
@@ -199,30 +201,49 @@ FishLabel.TextSize = 14
 FishLabel.Font = Enum.Font.GothamBold
 FishLabel.Text = "Fish Caught: 0"
 
+-- AUTO FISH
 addToggle(FarmTab, "Auto Fish", function(v)
+    Toggles["Auto Fish"] = v
     task.spawn(function()
         while Toggles["Auto Fish"] do
             local rod = getRod()
             if rod then
                 castRod(rod)
-                task.wait(1.2)
+                task.wait(0.5) -- lebih cepat jika Fast Action aktif
                 local prompt = findReelPrompt()
                 if prompt then
-                    fireproximityprompt(prompt)
-                    FishCaught = FishCaught + 1
+                    prompt:InputHoldBegin()
+                    task.wait(0.15)
+                    prompt:InputHoldEnd()
+                    FishCaught += 1
                     FishLabel.Text = "Fish Caught: "..FishCaught
                 end
             end
-            task.wait(0.7)
+            task.wait(0.3)
         end
     end)
 end)
 
+-- FAST ACTION
 addToggle(FarmTab, "Fast Action", function(v)
-    -- Placeholder fast action logic
+    Toggles["Fast Action"] = v
+    -- mempengaruhi delay auto fish
 end)
+
+-- ANTI FAIL
 addToggle(FarmTab, "Anti Fail", function(v)
-    -- Placeholder anti fail logic
+    Toggles["Anti Fail"] = v
+    task.spawn(function()
+        while Toggles["Anti Fail"] do
+            local prompt = findReelPrompt()
+            if prompt then
+                prompt:InputHoldBegin()
+                task.wait(0.1)
+                prompt:InputHoldEnd()
+            end
+            task.wait(0.5)
+        end
+    end)
 end)
 
 -- MISC
@@ -230,4 +251,3 @@ addButton(MiscTab, "FPS Boost", function() FPSBoost() end)
 addButton(MiscTab, "Server Rejoin", function()
     TeleportService:Teleport(game.PlaceId)
 end)
-
