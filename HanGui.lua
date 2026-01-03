@@ -19,7 +19,7 @@ end
 
 -- ================= UI =================
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "FishIt_Lynxx_Premium"
+ScreenGui.Name = "HANZ"
 
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.fromScale(0.38, 0.5)
@@ -36,7 +36,7 @@ Stroke.Thickness = 2
 -- Title
 local Title = Instance.new("TextLabel", Main)
 Title.Size = UDim2.new(1,0,0,45)
-Title.Text = "FISH IT | LYNXX PREMIUM"
+Title.Text = "FISH IT | By HANSZ"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
 Title.TextColor3 = Color3.fromRGB(0,170,255)
