@@ -1,4 +1,4 @@
---// FISH IT | HANSZ (ALL-IN-ONE FIX)
+--// FISH IT | HANSZ (ALL-IN-ONE FIX) 
 --// Executor-safe, 1 file, full features + modern GUI + Fast Action + Anti Fail
 
 -- SERVICES
@@ -20,7 +20,12 @@ end
 -- ================= UI =================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "HANZ"
-ScreenGui.Parent = LP:WaitForChild("PlayerGui")
+
+-- CoreGui fix for executors
+local parentGui = game:GetService("CoreGui")
+if syn then parentGui = gethui() end
+ScreenGui.Parent = parentGui
+ScreenGui.ResetOnSpawn = false
 
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.fromScale(0.38, 0.5)
@@ -209,7 +214,7 @@ addToggle(FarmTab, "Auto Fish", function(v)
             local rod = getRod()
             if rod then
                 castRod(rod)
-                task.wait(0.5) -- lebih cepat jika Fast Action aktif
+                task.wait(Toggles["Fast Action"] and 0.3 or 1)
                 local prompt = findReelPrompt()
                 if prompt then
                     prompt:InputHoldBegin()
@@ -227,7 +232,6 @@ end)
 -- FAST ACTION
 addToggle(FarmTab, "Fast Action", function(v)
     Toggles["Fast Action"] = v
-    -- mempengaruhi delay auto fish
 end)
 
 -- ANTI FAIL
